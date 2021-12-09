@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+if [[ -z "$1" ]]; then echo "usage: $0 <example-name>"; exit 1; fi
+
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-cmake-build-debug}
+
+make -C cmake-build-debug > /dev/null
+cargo run --example "$1" 2> /dev/null
