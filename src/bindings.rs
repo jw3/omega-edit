@@ -732,6 +732,18 @@ extern "C" {
         length: i64,
     ) -> i64;
 }
+extern "C" {
+    #[doc = " Given a viewport, return the viewport data length"]
+    #[doc = " @param viewport_ptr viewport to get the viewport data length from"]
+    #[doc = " @return viewport data length"]
+    pub fn omega_viewport_get_length(viewport_ptr: *const omega_viewport_t) -> i64;
+}
+extern "C" {
+    #[doc = " Given a viewport, return the viewport data"]
+    #[doc = " @param viewport_ptr viewport to get the viewport data from"]
+    #[doc = " @return viewport data"]
+    pub fn omega_viewport_get_data(viewport_ptr: *const omega_viewport_t) -> *const omega_byte_t;
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct __cxxabiv1___class_type_info {
