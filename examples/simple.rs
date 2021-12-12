@@ -3,15 +3,15 @@ use std::error::Error;
 use std::ffi::{CStr, CString};
 use std::ptr;
 
-extern "C" fn vpt_change_cbk(v: *const omega_viewport_t, c: *const omega_change_t) {
+extern "C" fn vpt_change_cbk(v: *const omega_viewport_t, _: *const omega_change_t) {
     unsafe {
-        let l = omega_viewport_get_length(v);
-        let d = omega_viewport_get_data(v);
-        let d = std::slice::from_raw_parts(d, l as usize);
-        let s = CStr::from_bytes_with_nul_unchecked(d);
+        let len = omega_viewport_get_length(v);
+        let dat = omega_viewport_get_data(v);
+        let dat = std::slice::from_raw_parts(dat, len as usize);
+        let str = CStr::from_bytes_with_nul_unchecked(dat);
 
-        match s.to_str() {
-            Ok(s) => println!("[{} {}]", s, l),
+        match str.to_str() {
+            Ok(s) => println!("[{} {}]", s, len),
             Err(_) => {}
         };
     }
@@ -20,8 +20,7 @@ extern "C" fn vpt_change_cbk(v: *const omega_viewport_t, c: *const omega_change_
 fn main() -> Result<(), Box<dyn Error>> {
     unsafe {
         let session = omega_edit_create_session(ptr::null(), None, ptr::null_mut());
-        let viewport =
-            omega_edit_create_viewport(session, 0, 100, Some(vpt_change_cbk), ptr::null_mut());
+        omega_edit_create_viewport(session, 0, 100, Some(vpt_change_cbk), ptr::null_mut());
 
         let x = CString::new("Hello Weird!!!!")?;
         let y = CString::new("orl")?;
