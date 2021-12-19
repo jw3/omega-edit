@@ -63,3 +63,17 @@ impl Session {
 pub struct Viewport {
     p: *mut omega_viewport_t,
 }
+
+impl Viewport {
+    pub fn len(&self) -> i64 {
+        unsafe { omega_viewport_get_length(self.p) }
+    }
+
+    pub fn data(&self) -> &[u8] {
+        unsafe {
+            let len = omega_viewport_get_length(self.p);
+            let dat = omega_viewport_get_data(self.p);
+            std::slice::from_raw_parts(dat, len as usize)
+        }
+    }
+}

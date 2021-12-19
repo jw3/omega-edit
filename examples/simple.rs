@@ -1,7 +1,6 @@
 use omega_edit_rs::*;
 use std::error::Error;
-use std::ffi::{CStr, CString};
-use std::ptr;
+use std::ffi::CStr;
 
 extern "C" fn vpt_change_cbk(v: *const omega_viewport_t, _: *const omega_change_t) {
     unsafe {
@@ -18,14 +17,15 @@ extern "C" fn vpt_change_cbk(v: *const omega_viewport_t, _: *const omega_change_
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let x = vpt_change_cbk;
-
     let mut s = Session::new();
-    let _v = s.view(0, 100, Some(vpt_change_cbk));
+    let v = s.view(0, 100, Some(vpt_change_cbk));
 
     s.push("Hello Weird!!!!");
     s.overwrite("orl", 7);
     s.delete(11, 3);
+
+    let s = String::from_utf8(v.data().to_vec())?;
+    println!("{}", s);
 
     Ok(())
 }
