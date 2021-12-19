@@ -1,4 +1,4 @@
-use omega_edit_rs::bindings::*;
+use omega_edit_rs::*;
 use std::error::Error;
 use std::ffi::{CStr, CString};
 use std::ptr;
@@ -18,20 +18,14 @@ extern "C" fn vpt_change_cbk(v: *const omega_viewport_t, _: *const omega_change_
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    unsafe {
-        let session = omega_edit_create_session(ptr::null(), None, ptr::null_mut());
-        omega_edit_create_viewport(session, 0, 100, Some(vpt_change_cbk), ptr::null_mut());
+    let x = vpt_change_cbk;
 
-        let x = CString::new("Hello Weird!!!!")?;
-        let y = CString::new("orl")?;
-        let z = CString::new("target/hello.txt")?;
+    let mut s = Session::new();
+    let _v = s.view(0, 100, Some(vpt_change_cbk));
 
-        omega_edit_insert(session, 0, x.as_c_str().as_ptr(), 0);
-        omega_edit_overwrite(session, 7, y.as_c_str().as_ptr(), 0);
-        omega_edit_delete(session, 11, 3);
-        omega_edit_save(session, z.as_c_str().as_ptr());
-        omega_edit_destroy_session(session);
-    }
+    s.push("Hello Weird!!!!");
+    s.overwrite("orl", 7);
+    s.delete(11, 3);
 
     Ok(())
 }
