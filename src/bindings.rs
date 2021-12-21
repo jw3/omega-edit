@@ -700,7 +700,7 @@ extern "C" {
     #[doc = " @param session_ptr session to make the change in"]
     #[doc = " @param offset location offset to make the change"]
     #[doc = " @param length number of bytes to delete"]
-    #[doc = " @return positive change serial number on success, negative value otherwise"]
+    #[doc = " @return positive change serial number on success, zero otherwise"]
     pub fn omega_edit_delete(session_ptr: *mut omega_session_t, offset: i64, length: i64) -> i64;
 }
 extern "C" {
@@ -710,7 +710,7 @@ extern "C" {
     #[doc = " @param cstr C string to insert at the given offset"]
     #[doc = " @param length length of the C string to insert (if 0, strlen will be used to calculate the length of null-terminated"]
     #[doc = " bytes)"]
-    #[doc = " @return positive change serial number on success, negative value otherwise"]
+    #[doc = " @return positive change serial number on success, zero otherwise"]
     pub fn omega_edit_insert(
         session_ptr: *mut omega_session_t,
         offset: i64,
@@ -724,7 +724,7 @@ extern "C" {
     #[doc = " @param offset location offset to make the change"]
     #[doc = " @param cstr new C string to overwrite the old bytes with"]
     #[doc = " @param length length of the new C string (if 0, strlen will be used to calculate the length of null-terminated bytes)"]
-    #[doc = " @return positive change serial number on success, negative value otherwise"]
+    #[doc = " @return positive change serial number on success, zero otherwise"]
     pub fn omega_edit_overwrite(
         session_ptr: *mut omega_session_t,
         offset: i64,
@@ -743,6 +743,197 @@ extern "C" {
     #[doc = " @param viewport_ptr viewport to get the viewport data from"]
     #[doc = " @return viewport data"]
     pub fn omega_viewport_get_data(viewport_ptr: *const omega_viewport_t) -> *const omega_byte_t;
+}
+#[doc = " Union to hold consecutive bytes of data.  If the length of the data is less than 8, the data will be stored directly"]
+#[doc = " in the sm_bytes field.  If the length is greater than 7, the data will be stored in allocated space on the heap"]
+#[doc = " whose address will be stored in the bytes field."]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union omega_data_t {
+    #[doc = "< Hold bytes of length greater than 7"]
+    pub bytes_ptr: *mut omega_byte_t,
+    #[doc = "< Hold bytes of length less than 8"]
+    pub sm_bytes: [omega_byte_t; 8usize],
+}
+#[test]
+fn bindgen_test_layout_omega_data_t() {
+    assert_eq!(
+        ::std::mem::size_of::<omega_data_t>(),
+        8usize,
+        concat!("Size of: ", stringify!(omega_data_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<omega_data_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(omega_data_t))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_data_t>())).bytes_ptr as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_data_t),
+            "::",
+            stringify!(bytes_ptr)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_data_t>())).sm_bytes as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_data_t),
+            "::",
+            stringify!(sm_bytes)
+        )
+    );
+}
+pub const change_kind_t_CHANGE_DELETE: change_kind_t = 0;
+pub const change_kind_t_CHANGE_INSERT: change_kind_t = 1;
+pub const change_kind_t_CHANGE_OVERWRITE: change_kind_t = 2;
+pub type change_kind_t = ::std::os::raw::c_int;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct omega_change_t {
+    #[doc = "< Serial number of the change (increasing)"]
+    pub serial: i64,
+    #[doc = "< Change kind"]
+    pub kind: change_kind_t,
+    #[doc = "< Offset at the time of the change"]
+    pub offset: i64,
+    #[doc = "< Number of bytes at the time of the change"]
+    pub length: i64,
+    #[doc = "< Bytes to insert or overwrite"]
+    pub data: omega_data_t,
+}
+#[test]
+fn bindgen_test_layout_omega_change_t() {
+    assert_eq!(
+        ::std::mem::size_of::<omega_change_t>(),
+        40usize,
+        concat!("Size of: ", stringify!(omega_change_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<omega_change_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(omega_change_t))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_change_t>())).serial as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_change_t),
+            "::",
+            stringify!(serial)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_change_t>())).kind as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_change_t),
+            "::",
+            stringify!(kind)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_change_t>())).offset as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_change_t),
+            "::",
+            stringify!(offset)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_change_t>())).length as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_change_t),
+            "::",
+            stringify!(length)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_change_t>())).data as *const _ as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_change_t),
+            "::",
+            stringify!(data)
+        )
+    );
+}
+#[doc = " A segment of data"]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct omega_data_segment_t {
+    #[doc = "< Data offset as changes have been made"]
+    pub offset: i64,
+    #[doc = "< Populated data length (in bytes)"]
+    pub length: i64,
+    #[doc = "< Data capacity (in bytes)"]
+    pub capacity: i64,
+    #[doc = "< Copy of the data itself"]
+    pub data: omega_data_t,
+}
+#[test]
+fn bindgen_test_layout_omega_data_segment_t() {
+    assert_eq!(
+        ::std::mem::size_of::<omega_data_segment_t>(),
+        32usize,
+        concat!("Size of: ", stringify!(omega_data_segment_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<omega_data_segment_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(omega_data_segment_t))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_data_segment_t>())).offset as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_data_segment_t),
+            "::",
+            stringify!(offset)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_data_segment_t>())).length as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_data_segment_t),
+            "::",
+            stringify!(length)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_data_segment_t>())).capacity as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_data_segment_t),
+            "::",
+            stringify!(capacity)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_data_segment_t>())).data as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_data_segment_t),
+            "::",
+            stringify!(data)
+        )
+    );
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1183,208 +1374,9 @@ fn bindgen_test_layout__IO_FILE() {
         )
     );
 }
-pub type data_ptr_t = u64;
-#[doc = " Union to hold consecutive bytes of data.  If the length of the data is less than 8, the data will be stored directly"]
-#[doc = " in the sm_bytes field.  If the length is greater than 7, the data will be stored in allocated space on the heap"]
-#[doc = " whose address will be stored in the bytes field."]
-#[repr(C)]
-pub union data_t {
-    #[doc = "< Hold bytes of length greater than 7"]
-    pub bytes_ptr: data_ptr_t,
-    #[doc = "< Hold bytes of length less than 8"]
-    pub sm_bytes: [omega_byte_t; 8usize],
-}
-#[test]
-fn bindgen_test_layout_data_t() {
-    assert_eq!(
-        ::std::mem::size_of::<data_t>(),
-        8usize,
-        concat!("Size of: ", stringify!(data_t))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<data_t>(),
-        8usize,
-        concat!("Alignment of ", stringify!(data_t))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<data_t>())).bytes_ptr as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(data_t),
-            "::",
-            stringify!(bytes_ptr)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<data_t>())).sm_bytes as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(data_t),
-            "::",
-            stringify!(sm_bytes)
-        )
-    );
-}
-extern "C" {
-    #[link_name = "\u{1}_ZN6data_tD1Ev"]
-    pub fn data_t_data_t_destructor(this: *mut data_t);
-}
-impl data_t {
-    #[inline]
-    pub unsafe fn destruct(&mut self) {
-        data_t_data_t_destructor(self)
-    }
-}
-pub const change_kind_t_CHANGE_DELETE: change_kind_t = 0;
-pub const change_kind_t_CHANGE_INSERT: change_kind_t = 1;
-pub const change_kind_t_CHANGE_OVERWRITE: change_kind_t = 2;
-pub type change_kind_t = ::std::os::raw::c_int;
-#[repr(C)]
-pub struct omega_change_t {
-    #[doc = "< Serial number of the change (increasing)"]
-    pub serial: i64,
-    #[doc = "< Change kind"]
-    pub kind: change_kind_t,
-    #[doc = "< Offset at the time of the change"]
-    pub offset: i64,
-    #[doc = "< Number of bytes at the time of the change"]
-    pub length: i64,
-    #[doc = "< Bytes to insert or overwrite"]
-    pub data: data_t,
-}
-#[test]
-fn bindgen_test_layout_omega_change_t() {
-    assert_eq!(
-        ::std::mem::size_of::<omega_change_t>(),
-        40usize,
-        concat!("Size of: ", stringify!(omega_change_t))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<omega_change_t>(),
-        8usize,
-        concat!("Alignment of ", stringify!(omega_change_t))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_change_t>())).serial as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(omega_change_t),
-            "::",
-            stringify!(serial)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_change_t>())).kind as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(omega_change_t),
-            "::",
-            stringify!(kind)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_change_t>())).offset as *const _ as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(omega_change_t),
-            "::",
-            stringify!(offset)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_change_t>())).length as *const _ as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(omega_change_t),
-            "::",
-            stringify!(length)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_change_t>())).data as *const _ as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(omega_change_t),
-            "::",
-            stringify!(data)
-        )
-    );
-}
-#[doc = " A segment of data"]
-#[repr(C)]
-pub struct data_segment_t {
-    #[doc = "< Data offset as changes have been made"]
-    pub offset: i64,
-    #[doc = "< Populated data length (in bytes)"]
-    pub length: i64,
-    #[doc = "< Data capacity (in bytes)"]
-    pub capacity: i64,
-    #[doc = "< Copy of the data itself"]
-    pub data: data_t,
-}
-#[test]
-fn bindgen_test_layout_data_segment_t() {
-    assert_eq!(
-        ::std::mem::size_of::<data_segment_t>(),
-        32usize,
-        concat!("Size of: ", stringify!(data_segment_t))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<data_segment_t>(),
-        8usize,
-        concat!("Alignment of ", stringify!(data_segment_t))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<data_segment_t>())).offset as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(data_segment_t),
-            "::",
-            stringify!(offset)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<data_segment_t>())).length as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(data_segment_t),
-            "::",
-            stringify!(length)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<data_segment_t>())).capacity as *const _ as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(data_segment_t),
-            "::",
-            stringify!(capacity)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<data_segment_t>())).data as *const _ as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(data_segment_t),
-            "::",
-            stringify!(data)
-        )
-    );
-}
 pub type const_omega_change_ptr_t = std_shared_ptr;
 #[repr(C)]
-pub struct model_segment_t {
+pub struct omega_model_segment_t {
     #[doc = "< Computed offset can differ from the change as segments move and split"]
     pub computed_offset: i64,
     #[doc = "< Computed length can differ from the change as segments split"]
@@ -1395,69 +1387,77 @@ pub struct model_segment_t {
     pub change_ptr: const_omega_change_ptr_t,
 }
 #[test]
-fn bindgen_test_layout_model_segment_t() {
+fn bindgen_test_layout_omega_model_segment_t() {
     assert_eq!(
-        ::std::mem::size_of::<model_segment_t>(),
+        ::std::mem::size_of::<omega_model_segment_t>(),
         40usize,
-        concat!("Size of: ", stringify!(model_segment_t))
+        concat!("Size of: ", stringify!(omega_model_segment_t))
     );
     assert_eq!(
-        ::std::mem::align_of::<model_segment_t>(),
+        ::std::mem::align_of::<omega_model_segment_t>(),
         8usize,
-        concat!("Alignment of ", stringify!(model_segment_t))
+        concat!("Alignment of ", stringify!(omega_model_segment_t))
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<model_segment_t>())).computed_offset as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<omega_model_segment_t>())).computed_offset as *const _ as usize
+        },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(model_segment_t),
+            stringify!(omega_model_segment_t),
             "::",
             stringify!(computed_offset)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<model_segment_t>())).computed_length as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<omega_model_segment_t>())).computed_length as *const _ as usize
+        },
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(model_segment_t),
+            stringify!(omega_model_segment_t),
             "::",
             stringify!(computed_length)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<model_segment_t>())).change_offset as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<omega_model_segment_t>())).change_offset as *const _ as usize
+        },
         16usize,
         concat!(
             "Offset of field: ",
-            stringify!(model_segment_t),
+            stringify!(omega_model_segment_t),
             "::",
             stringify!(change_offset)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<model_segment_t>())).change_ptr as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<omega_model_segment_t>())).change_ptr as *const _ as usize
+        },
         24usize,
         concat!(
             "Offset of field: ",
-            stringify!(model_segment_t),
+            stringify!(omega_model_segment_t),
             "::",
             stringify!(change_ptr)
         )
     );
 }
-pub type model_segment_ptr_t = std_unique_ptr;
-pub type model_segments_t = std_vector;
-pub type changes_t = std_vector;
+pub type omega_model_segment_ptr_t = std_unique_ptr;
+pub type omega_model_segments_t = std_vector;
+pub type omega_changes_t = std_vector;
 #[repr(C)]
 pub struct omega_model_t {
     #[doc = "< Collection of changes for this session, ordered by time"]
-    pub changes: changes_t,
+    pub changes: omega_changes_t,
     #[doc = "< Undone changes that are eligible for being redone"]
-    pub changes_undone: changes_t,
+    pub changes_undone: omega_changes_t,
     #[doc = "< Model segment vector"]
-    pub model_segments: model_segments_t,
+    pub model_segments: omega_model_segments_t,
 }
 #[test]
 fn bindgen_test_layout_omega_model_t() {
@@ -1594,11 +1594,12 @@ fn bindgen_test_layout_omega_session_t() {
     );
 }
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct omega_viewport_t {
     #[doc = "< Session that owns this viewport instance"]
     pub session_ptr: *mut omega_session_t,
     #[doc = "< Viewport data"]
-    pub data_segment: data_segment_t,
+    pub data_segment: omega_data_segment_t,
     #[doc = "< User callback when the viewport changes"]
     pub on_change_cbk: omega_viewport_on_change_cbk_t,
     #[doc = "< Pointer to associated user-provided data"]
@@ -1735,7 +1736,7 @@ fn __bindgen_test_layout_std_shared_ptr_open0_omega_change_t_close0_instantiatio
     );
 }
 #[test]
-fn __bindgen_test_layout_std_unique_ptr_open0_model_segment_t_std_default_delete_open1_model_segment_t_close1_close0_instantiation(
+fn __bindgen_test_layout_std_unique_ptr_open0_omega_model_segment_t_std_default_delete_open1_omega_model_segment_t_close1_close0_instantiation(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_unique_ptr>(),
@@ -1755,7 +1756,7 @@ fn __bindgen_test_layout_std_unique_ptr_open0_model_segment_t_std_default_delete
     );
 }
 #[test]
-fn __bindgen_test_layout_std_default_delete_open0_model_segment_t_close0_instantiation() {
+fn __bindgen_test_layout_std_default_delete_open0_omega_model_segment_t_close0_instantiation() {
     assert_eq!(
         ::std::mem::size_of::<std_default_delete>(),
         1usize,
@@ -1774,7 +1775,7 @@ fn __bindgen_test_layout_std_default_delete_open0_model_segment_t_close0_instant
     );
 }
 #[test]
-fn __bindgen_test_layout_std_vector_open0_model_segment_ptr_t_std_allocator_open1_std_unique_ptr_open2_model_segment_t_std_default_delete_open3_model_segment_t_close3_close2_close1_close0_instantiation(
+fn __bindgen_test_layout_std_vector_open0_omega_model_segment_ptr_t_std_allocator_open1_std_unique_ptr_open2_omega_model_segment_t_std_default_delete_open3_omega_model_segment_t_close3_close2_close1_close0_instantiation(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_vector>(),
@@ -1791,7 +1792,7 @@ fn __bindgen_test_layout_std_vector_open0_model_segment_ptr_t_std_allocator_open
     );
 }
 #[test]
-fn __bindgen_test_layout_std_allocator_open0_std_unique_ptr_open1_model_segment_t_std_default_delete_open2_model_segment_t_close2_close1_close0_instantiation(
+fn __bindgen_test_layout_std_allocator_open0_std_unique_ptr_open1_omega_model_segment_t_std_default_delete_open2_omega_model_segment_t_close2_close1_close0_instantiation(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_allocator>(),
@@ -1811,7 +1812,7 @@ fn __bindgen_test_layout_std_allocator_open0_std_unique_ptr_open1_model_segment_
     );
 }
 #[test]
-fn __bindgen_test_layout_std_unique_ptr_open0_model_segment_t_std_default_delete_open1_model_segment_t_close1_close0_instantiation_1(
+fn __bindgen_test_layout_std_unique_ptr_open0_omega_model_segment_t_std_default_delete_open1_omega_model_segment_t_close1_close0_instantiation_1(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_unique_ptr>(),
@@ -1831,7 +1832,7 @@ fn __bindgen_test_layout_std_unique_ptr_open0_model_segment_t_std_default_delete
     );
 }
 #[test]
-fn __bindgen_test_layout_std_default_delete_open0_model_segment_t_close0_instantiation_1() {
+fn __bindgen_test_layout_std_default_delete_open0_omega_model_segment_t_close0_instantiation_1() {
     assert_eq!(
         ::std::mem::size_of::<std_default_delete>(),
         1usize,
