@@ -35,10 +35,12 @@ impl Session {
             omega_edit_create_viewport(self.p, offset, size, Some(vpt_change_cbk), ptr::null_mut())
         };
         let rc = Rc::new(Viewport { p, f: Some(cb) });
-        self.views.push(rc.clone());
         unsafe {
+            // todo;; flip flop to eliminate a leak (is there a better way...)
             (*p).user_data_ptr = Rc::into_raw(rc.clone()) as *mut c_void;
-        };
+            self.views
+                .push(Rc::from_raw((*p).user_data_ptr as *const Viewport));
+        }
         rc
     }
 
