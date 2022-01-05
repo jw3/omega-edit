@@ -1,19 +1,12 @@
 use omega_edit_rs::*;
-use std::error::Error;
 
-fn foo(v: &Viewport) {
-    println!("[{} {}]", v, v.len())
-}
-
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() {
     let mut s = Session::new();
-    let v = s.view(0, 100, Box::new(foo));
+    let v = s.view(0, 100, Box::new(|v| println!("[[{} {}]]", v, v.len())));
 
     s.push("Hello Weird!!!!");
     s.overwrite("orl", 7);
     s.delete(11, 3);
 
     println!("{}", v);
-
-    Ok(())
 }
