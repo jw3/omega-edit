@@ -30,7 +30,14 @@ impl Session {
         Self { p, views: vec![] }
     }
 
-    pub fn view(&mut self, offset: i64, size: i64, cb: ViewportCallback) -> Rc<Viewport> {
+    pub fn view(&mut self, offset: i64, size: i64) -> Rc<Viewport> {
+        let p = unsafe { omega_edit_create_viewport(self.p, offset, size, None, ptr::null_mut()) };
+        let rc = Rc::new(Viewport { p, f: None });
+        self.views.push(rc.clone());
+        rc
+    }
+
+    pub fn view_cb(&mut self, offset: i64, size: i64, cb: ViewportCallback) -> Rc<Viewport> {
         let p = unsafe {
             omega_edit_create_viewport(self.p, offset, size, Some(vpt_change_cbk), ptr::null_mut())
         };

@@ -2,11 +2,19 @@ use omega_edit_rs::*;
 
 fn main() {
     let mut s = Session::new();
-    let v = s.view(0, 100, Box::new(|v| println!("[[{} {}]]", v, v.len())));
 
+    // add a view for watching changes
+    s.view_cb(0, 100, Box::new(|v| println!("[[{} {}]]", v, v.len())));
+
+    // add two views for display
+    let hello = s.view(0, 5);
+    let world = s.view(6, 10);
+
+    // make some changes
     s.push("Hello Weird!!!!");
     s.overwrite("orl", 7);
     s.delete(11, 3);
 
-    println!("{}", v);
+    // display the views
+    println!("{} {}", hello, world);
 }
