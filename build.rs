@@ -16,6 +16,7 @@ fn main() {
         .allowlist_function("omega_edit_save")
         .allowlist_function("omega_edit_destroy_session")
         .allowlist_function("omega_viewport_get_data")
+        .allowlist_function("omega_viewport_get_user_data")
         .allowlist_function("omega_viewport_get_length")
         .generate_inline_functions(true)
         .clang_args(&["-x", "c++"])

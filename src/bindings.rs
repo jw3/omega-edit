@@ -43,7 +43,6 @@ impl<T> ::std::cmp::PartialEq for __BindgenUnionField<T> {
     }
 }
 impl<T> ::std::cmp::Eq for __BindgenUnionField<T> {}
-pub type omega_byte_t = ::std::os::raw::c_uchar;
 pub type std_size_t = ::std::os::raw::c_ulong;
 #[repr(C)]
 pub struct std_basic_string<_CharT> {
@@ -638,9 +637,14 @@ pub type __gnu_cxx_char_traits_int_type = __gnu_cxx__Char_types;
 pub type __gnu_cxx_char_traits_pos_type = __gnu_cxx__Char_types;
 pub type __gnu_cxx_char_traits_off_type = __gnu_cxx__Char_types;
 pub type __gnu_cxx_char_traits_state_type = __gnu_cxx__Char_types;
+pub type __int8_t = ::std::os::raw::c_schar;
 pub type __int64_t = ::std::os::raw::c_long;
 pub type __off_t = ::std::os::raw::c_long;
 pub type __off64_t = ::std::os::raw::c_long;
+pub type omega_byte_t = ::std::os::raw::c_uchar;
+pub type omega_session_t = omega_session_struct;
+pub type omega_change_t = omega_change_struct;
+pub type omega_viewport_t = omega_viewport_struct;
 pub type size_t = ::std::os::raw::c_ulong;
 #[doc = " On session change callback.  This under-defined function will be called when an associated session changes."]
 pub type omega_session_on_change_cbk_t = ::std::option::Option<
@@ -744,57 +748,69 @@ extern "C" {
     #[doc = " @return viewport data"]
     pub fn omega_viewport_get_data(viewport_ptr: *const omega_viewport_t) -> *const omega_byte_t;
 }
+extern "C" {
+    #[doc = " Given a viewport, return the viewport user data"]
+    #[doc = " @param viewport_ptr viewport to get the user data from"]
+    #[doc = " @return viewport user data"]
+    pub fn omega_viewport_get_user_data(
+        viewport_ptr: *const omega_viewport_t,
+    ) -> *mut ::std::os::raw::c_void;
+}
 #[doc = " Union to hold consecutive bytes of data.  If the length of the data is less than 8, the data will be stored directly"]
 #[doc = " in the sm_bytes field.  If the length is greater than 7, the data will be stored in allocated space on the heap"]
 #[doc = " whose address will be stored in the bytes field."]
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub union omega_data_t {
+pub union omega_data_union {
     #[doc = "< Hold bytes of length greater than 7"]
     pub bytes_ptr: *mut omega_byte_t,
     #[doc = "< Hold bytes of length less than 8"]
     pub sm_bytes: [omega_byte_t; 8usize],
 }
 #[test]
-fn bindgen_test_layout_omega_data_t() {
+fn bindgen_test_layout_omega_data_union() {
     assert_eq!(
-        ::std::mem::size_of::<omega_data_t>(),
+        ::std::mem::size_of::<omega_data_union>(),
         8usize,
-        concat!("Size of: ", stringify!(omega_data_t))
+        concat!("Size of: ", stringify!(omega_data_union))
     );
     assert_eq!(
-        ::std::mem::align_of::<omega_data_t>(),
+        ::std::mem::align_of::<omega_data_union>(),
         8usize,
-        concat!("Alignment of ", stringify!(omega_data_t))
+        concat!("Alignment of ", stringify!(omega_data_union))
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_data_t>())).bytes_ptr as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<omega_data_union>())).bytes_ptr as *const _ as usize },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_data_t),
+            stringify!(omega_data_union),
             "::",
             stringify!(bytes_ptr)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_data_t>())).sm_bytes as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<omega_data_union>())).sm_bytes as *const _ as usize },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_data_t),
+            stringify!(omega_data_union),
             "::",
             stringify!(sm_bytes)
         )
     );
 }
+#[doc = " Union to hold consecutive bytes of data.  If the length of the data is less than 8, the data will be stored directly"]
+#[doc = " in the sm_bytes field.  If the length is greater than 7, the data will be stored in allocated space on the heap"]
+#[doc = " whose address will be stored in the bytes field."]
+pub type omega_data_t = omega_data_union;
 pub const change_kind_t_CHANGE_DELETE: change_kind_t = 0;
 pub const change_kind_t_CHANGE_INSERT: change_kind_t = 1;
 pub const change_kind_t_CHANGE_OVERWRITE: change_kind_t = 2;
 pub type change_kind_t = ::std::os::raw::c_int;
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub struct omega_change_t {
+pub struct omega_change_struct {
     #[doc = "< Serial number of the change (increasing)"]
     pub serial: i64,
     #[doc = "< Change kind"]
@@ -807,129 +823,63 @@ pub struct omega_change_t {
     pub data: omega_data_t,
 }
 #[test]
-fn bindgen_test_layout_omega_change_t() {
+fn bindgen_test_layout_omega_change_struct() {
     assert_eq!(
-        ::std::mem::size_of::<omega_change_t>(),
+        ::std::mem::size_of::<omega_change_struct>(),
         40usize,
-        concat!("Size of: ", stringify!(omega_change_t))
+        concat!("Size of: ", stringify!(omega_change_struct))
     );
     assert_eq!(
-        ::std::mem::align_of::<omega_change_t>(),
+        ::std::mem::align_of::<omega_change_struct>(),
         8usize,
-        concat!("Alignment of ", stringify!(omega_change_t))
+        concat!("Alignment of ", stringify!(omega_change_struct))
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_change_t>())).serial as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<omega_change_struct>())).serial as *const _ as usize },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_change_t),
+            stringify!(omega_change_struct),
             "::",
             stringify!(serial)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_change_t>())).kind as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<omega_change_struct>())).kind as *const _ as usize },
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_change_t),
+            stringify!(omega_change_struct),
             "::",
             stringify!(kind)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_change_t>())).offset as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<omega_change_struct>())).offset as *const _ as usize },
         16usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_change_t),
+            stringify!(omega_change_struct),
             "::",
             stringify!(offset)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_change_t>())).length as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<omega_change_struct>())).length as *const _ as usize },
         24usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_change_t),
+            stringify!(omega_change_struct),
             "::",
             stringify!(length)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_change_t>())).data as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<omega_change_struct>())).data as *const _ as usize },
         32usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_change_t),
-            "::",
-            stringify!(data)
-        )
-    );
-}
-#[doc = " A segment of data"]
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct omega_data_segment_t {
-    #[doc = "< Data offset as changes have been made"]
-    pub offset: i64,
-    #[doc = "< Populated data length (in bytes)"]
-    pub length: i64,
-    #[doc = "< Data capacity (in bytes)"]
-    pub capacity: i64,
-    #[doc = "< Copy of the data itself"]
-    pub data: omega_data_t,
-}
-#[test]
-fn bindgen_test_layout_omega_data_segment_t() {
-    assert_eq!(
-        ::std::mem::size_of::<omega_data_segment_t>(),
-        32usize,
-        concat!("Size of: ", stringify!(omega_data_segment_t))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<omega_data_segment_t>(),
-        8usize,
-        concat!("Alignment of ", stringify!(omega_data_segment_t))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_data_segment_t>())).offset as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(omega_data_segment_t),
-            "::",
-            stringify!(offset)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_data_segment_t>())).length as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(omega_data_segment_t),
-            "::",
-            stringify!(length)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_data_segment_t>())).capacity as *const _ as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(omega_data_segment_t),
-            "::",
-            stringify!(capacity)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_data_segment_t>())).data as *const _ as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(omega_data_segment_t),
+            stringify!(omega_change_struct),
             "::",
             stringify!(data)
         )
@@ -1374,9 +1324,85 @@ fn bindgen_test_layout__IO_FILE() {
         )
     );
 }
+pub type omega_model_t = omega_model_struct;
+#[doc = " A segment of data"]
+pub type omega_data_segment_t = omega_data_segment_struct;
+pub type omega_model_segment_t = omega_model_segment_struct;
 pub type const_omega_change_ptr_t = std_shared_ptr;
+#[doc = " A segment of data"]
 #[repr(C)]
-pub struct omega_model_segment_t {
+#[derive(Copy, Clone)]
+pub struct omega_data_segment_struct {
+    #[doc = "< Data offset as changes have been made"]
+    pub offset: i64,
+    #[doc = "< Populated data length (in bytes)"]
+    pub length: i64,
+    #[doc = "< Data capacity (in bytes)"]
+    pub capacity: i64,
+    #[doc = "< Copy of the data itself"]
+    pub data: omega_data_t,
+}
+#[test]
+fn bindgen_test_layout_omega_data_segment_struct() {
+    assert_eq!(
+        ::std::mem::size_of::<omega_data_segment_struct>(),
+        32usize,
+        concat!("Size of: ", stringify!(omega_data_segment_struct))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<omega_data_segment_struct>(),
+        8usize,
+        concat!("Alignment of ", stringify!(omega_data_segment_struct))
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<omega_data_segment_struct>())).offset as *const _ as usize
+        },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_data_segment_struct),
+            "::",
+            stringify!(offset)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<omega_data_segment_struct>())).length as *const _ as usize
+        },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_data_segment_struct),
+            "::",
+            stringify!(length)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<omega_data_segment_struct>())).capacity as *const _ as usize
+        },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_data_segment_struct),
+            "::",
+            stringify!(capacity)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_data_segment_struct>())).data as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_data_segment_struct),
+            "::",
+            stringify!(data)
+        )
+    );
+}
+#[repr(C)]
+pub struct omega_model_segment_struct {
     #[doc = "< Computed offset can differ from the change as segments move and split"]
     pub computed_offset: i64,
     #[doc = "< Computed length can differ from the change as segments split"]
@@ -1387,61 +1413,64 @@ pub struct omega_model_segment_t {
     pub change_ptr: const_omega_change_ptr_t,
 }
 #[test]
-fn bindgen_test_layout_omega_model_segment_t() {
+fn bindgen_test_layout_omega_model_segment_struct() {
     assert_eq!(
-        ::std::mem::size_of::<omega_model_segment_t>(),
+        ::std::mem::size_of::<omega_model_segment_struct>(),
         40usize,
-        concat!("Size of: ", stringify!(omega_model_segment_t))
+        concat!("Size of: ", stringify!(omega_model_segment_struct))
     );
     assert_eq!(
-        ::std::mem::align_of::<omega_model_segment_t>(),
+        ::std::mem::align_of::<omega_model_segment_struct>(),
         8usize,
-        concat!("Alignment of ", stringify!(omega_model_segment_t))
+        concat!("Alignment of ", stringify!(omega_model_segment_struct))
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<omega_model_segment_t>())).computed_offset as *const _ as usize
+            &(*(::std::ptr::null::<omega_model_segment_struct>())).computed_offset as *const _
+                as usize
         },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_model_segment_t),
+            stringify!(omega_model_segment_struct),
             "::",
             stringify!(computed_offset)
         )
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<omega_model_segment_t>())).computed_length as *const _ as usize
+            &(*(::std::ptr::null::<omega_model_segment_struct>())).computed_length as *const _
+                as usize
         },
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_model_segment_t),
+            stringify!(omega_model_segment_struct),
             "::",
             stringify!(computed_length)
         )
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<omega_model_segment_t>())).change_offset as *const _ as usize
+            &(*(::std::ptr::null::<omega_model_segment_struct>())).change_offset as *const _
+                as usize
         },
         16usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_model_segment_t),
+            stringify!(omega_model_segment_struct),
             "::",
             stringify!(change_offset)
         )
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<omega_model_segment_t>())).change_ptr as *const _ as usize
+            &(*(::std::ptr::null::<omega_model_segment_struct>())).change_ptr as *const _ as usize
         },
         24usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_model_segment_t),
+            stringify!(omega_model_segment_struct),
             "::",
             stringify!(change_ptr)
         )
@@ -1451,7 +1480,7 @@ pub type omega_model_segment_ptr_t = std_unique_ptr;
 pub type omega_model_segments_t = std_vector;
 pub type omega_changes_t = std_vector;
 #[repr(C)]
-pub struct omega_model_t {
+pub struct omega_model_struct {
     #[doc = "< Collection of changes for this session, ordered by time"]
     pub changes: omega_changes_t,
     #[doc = "< Undone changes that are eligible for being redone"]
@@ -1460,43 +1489,47 @@ pub struct omega_model_t {
     pub model_segments: omega_model_segments_t,
 }
 #[test]
-fn bindgen_test_layout_omega_model_t() {
+fn bindgen_test_layout_omega_model_struct() {
     assert_eq!(
-        ::std::mem::size_of::<omega_model_t>(),
+        ::std::mem::size_of::<omega_model_struct>(),
         72usize,
-        concat!("Size of: ", stringify!(omega_model_t))
+        concat!("Size of: ", stringify!(omega_model_struct))
     );
     assert_eq!(
-        ::std::mem::align_of::<omega_model_t>(),
+        ::std::mem::align_of::<omega_model_struct>(),
         8usize,
-        concat!("Alignment of ", stringify!(omega_model_t))
+        concat!("Alignment of ", stringify!(omega_model_struct))
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_model_t>())).changes as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<omega_model_struct>())).changes as *const _ as usize },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_model_t),
+            stringify!(omega_model_struct),
             "::",
             stringify!(changes)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_model_t>())).changes_undone as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<omega_model_struct>())).changes_undone as *const _ as usize
+        },
         24usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_model_t),
+            stringify!(omega_model_struct),
             "::",
             stringify!(changes_undone)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_model_t>())).model_segments as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<omega_model_struct>())).model_segments as *const _ as usize
+        },
         48usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_model_t),
+            stringify!(omega_model_struct),
             "::",
             stringify!(model_segments)
         )
@@ -1506,7 +1539,7 @@ pub type omega_model_ptr_t = std_unique_ptr;
 pub type omega_viewport_ptr_t = std_shared_ptr;
 pub type omega_viewports_t = std_vector;
 #[repr(C)]
-pub struct omega_session_t {
+pub struct omega_session_struct {
     #[doc = "< File being edited (open for read)"]
     pub file_ptr: *mut FILE,
     #[doc = "< File path being edited"]
@@ -1519,83 +1552,99 @@ pub struct omega_session_t {
     pub viewports_: omega_viewports_t,
     #[doc = "< Edit model (internal)"]
     pub model_ptr_: omega_model_ptr_t,
+    #[doc = "< Internal state flags"]
+    pub flags_: i8,
 }
 #[test]
-fn bindgen_test_layout_omega_session_t() {
+fn bindgen_test_layout_omega_session_struct() {
     assert_eq!(
-        ::std::mem::size_of::<omega_session_t>(),
-        88usize,
-        concat!("Size of: ", stringify!(omega_session_t))
+        ::std::mem::size_of::<omega_session_struct>(),
+        96usize,
+        concat!("Size of: ", stringify!(omega_session_struct))
     );
     assert_eq!(
-        ::std::mem::align_of::<omega_session_t>(),
+        ::std::mem::align_of::<omega_session_struct>(),
         8usize,
-        concat!("Alignment of ", stringify!(omega_session_t))
+        concat!("Alignment of ", stringify!(omega_session_struct))
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_session_t>())).file_ptr as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<omega_session_struct>())).file_ptr as *const _ as usize },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_session_t),
+            stringify!(omega_session_struct),
             "::",
             stringify!(file_ptr)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_session_t>())).file_path as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<omega_session_struct>())).file_path as *const _ as usize },
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_session_t),
+            stringify!(omega_session_struct),
             "::",
             stringify!(file_path)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_session_t>())).on_change_cbk as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<omega_session_struct>())).on_change_cbk as *const _ as usize
+        },
         40usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_session_t),
+            stringify!(omega_session_struct),
             "::",
             stringify!(on_change_cbk)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_session_t>())).user_data_ptr as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<omega_session_struct>())).user_data_ptr as *const _ as usize
+        },
         48usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_session_t),
+            stringify!(omega_session_struct),
             "::",
             stringify!(user_data_ptr)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_session_t>())).viewports_ as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<omega_session_struct>())).viewports_ as *const _ as usize },
         56usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_session_t),
+            stringify!(omega_session_struct),
             "::",
             stringify!(viewports_)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_session_t>())).model_ptr_ as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<omega_session_struct>())).model_ptr_ as *const _ as usize },
         80usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_session_t),
+            stringify!(omega_session_struct),
             "::",
             stringify!(model_ptr_)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<omega_session_struct>())).flags_ as *const _ as usize },
+        88usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(omega_session_struct),
+            "::",
+            stringify!(flags_)
         )
     );
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub struct omega_viewport_t {
+pub struct omega_viewport_struct {
     #[doc = "< Session that owns this viewport instance"]
     pub session_ptr: *mut omega_session_t,
     #[doc = "< Viewport data"]
@@ -1606,53 +1655,61 @@ pub struct omega_viewport_t {
     pub user_data_ptr: *mut ::std::os::raw::c_void,
 }
 #[test]
-fn bindgen_test_layout_omega_viewport_t() {
+fn bindgen_test_layout_omega_viewport_struct() {
     assert_eq!(
-        ::std::mem::size_of::<omega_viewport_t>(),
+        ::std::mem::size_of::<omega_viewport_struct>(),
         56usize,
-        concat!("Size of: ", stringify!(omega_viewport_t))
+        concat!("Size of: ", stringify!(omega_viewport_struct))
     );
     assert_eq!(
-        ::std::mem::align_of::<omega_viewport_t>(),
+        ::std::mem::align_of::<omega_viewport_struct>(),
         8usize,
-        concat!("Alignment of ", stringify!(omega_viewport_t))
+        concat!("Alignment of ", stringify!(omega_viewport_struct))
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_viewport_t>())).session_ptr as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<omega_viewport_struct>())).session_ptr as *const _ as usize
+        },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_viewport_t),
+            stringify!(omega_viewport_struct),
             "::",
             stringify!(session_ptr)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_viewport_t>())).data_segment as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<omega_viewport_struct>())).data_segment as *const _ as usize
+        },
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_viewport_t),
+            stringify!(omega_viewport_struct),
             "::",
             stringify!(data_segment)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_viewport_t>())).on_change_cbk as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<omega_viewport_struct>())).on_change_cbk as *const _ as usize
+        },
         40usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_viewport_t),
+            stringify!(omega_viewport_struct),
             "::",
             stringify!(on_change_cbk)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<omega_viewport_t>())).user_data_ptr as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<omega_viewport_struct>())).user_data_ptr as *const _ as usize
+        },
         48usize,
         concat!(
             "Offset of field: ",
-            stringify!(omega_viewport_t),
+            stringify!(omega_viewport_struct),
             "::",
             stringify!(user_data_ptr)
         )
@@ -1736,7 +1793,7 @@ fn __bindgen_test_layout_std_shared_ptr_open0_omega_change_t_close0_instantiatio
     );
 }
 #[test]
-fn __bindgen_test_layout_std_unique_ptr_open0_omega_model_segment_t_std_default_delete_open1_omega_model_segment_t_close1_close0_instantiation(
+fn __bindgen_test_layout_std_unique_ptr_open0_omega_model_segment_t_std_default_delete_open1_omega_model_segment_struct_close1_close0_instantiation(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_unique_ptr>(),
@@ -1756,7 +1813,8 @@ fn __bindgen_test_layout_std_unique_ptr_open0_omega_model_segment_t_std_default_
     );
 }
 #[test]
-fn __bindgen_test_layout_std_default_delete_open0_omega_model_segment_t_close0_instantiation() {
+fn __bindgen_test_layout_std_default_delete_open0_omega_model_segment_struct_close0_instantiation()
+{
     assert_eq!(
         ::std::mem::size_of::<std_default_delete>(),
         1usize,
@@ -1775,7 +1833,7 @@ fn __bindgen_test_layout_std_default_delete_open0_omega_model_segment_t_close0_i
     );
 }
 #[test]
-fn __bindgen_test_layout_std_vector_open0_omega_model_segment_ptr_t_std_allocator_open1_std_unique_ptr_open2_omega_model_segment_t_std_default_delete_open3_omega_model_segment_t_close3_close2_close1_close0_instantiation(
+fn __bindgen_test_layout_std_vector_open0_omega_model_segment_ptr_t_std_allocator_open1_std_unique_ptr_open2_omega_model_segment_struct_std_default_delete_open3_omega_model_segment_struct_close3_close2_close1_close0_instantiation(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_vector>(),
@@ -1792,7 +1850,7 @@ fn __bindgen_test_layout_std_vector_open0_omega_model_segment_ptr_t_std_allocato
     );
 }
 #[test]
-fn __bindgen_test_layout_std_allocator_open0_std_unique_ptr_open1_omega_model_segment_t_std_default_delete_open2_omega_model_segment_t_close2_close1_close0_instantiation(
+fn __bindgen_test_layout_std_allocator_open0_std_unique_ptr_open1_omega_model_segment_struct_std_default_delete_open2_omega_model_segment_struct_close2_close1_close0_instantiation(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_allocator>(),
@@ -1812,7 +1870,7 @@ fn __bindgen_test_layout_std_allocator_open0_std_unique_ptr_open1_omega_model_se
     );
 }
 #[test]
-fn __bindgen_test_layout_std_unique_ptr_open0_omega_model_segment_t_std_default_delete_open1_omega_model_segment_t_close1_close0_instantiation_1(
+fn __bindgen_test_layout_std_unique_ptr_open0_omega_model_segment_struct_std_default_delete_open1_omega_model_segment_struct_close1_close0_instantiation(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_unique_ptr>(),
@@ -1832,7 +1890,8 @@ fn __bindgen_test_layout_std_unique_ptr_open0_omega_model_segment_t_std_default_
     );
 }
 #[test]
-fn __bindgen_test_layout_std_default_delete_open0_omega_model_segment_t_close0_instantiation_1() {
+fn __bindgen_test_layout_std_default_delete_open0_omega_model_segment_struct_close0_instantiation_1(
+) {
     assert_eq!(
         ::std::mem::size_of::<std_default_delete>(),
         1usize,
@@ -1851,7 +1910,7 @@ fn __bindgen_test_layout_std_default_delete_open0_omega_model_segment_t_close0_i
     );
 }
 #[test]
-fn __bindgen_test_layout_std_vector_open0_const_omega_change_ptr_t_std_allocator_open1_std_shared_ptr_open2_omega_change_t_close2_close1_close0_instantiation(
+fn __bindgen_test_layout_std_vector_open0_const_omega_change_ptr_t_std_allocator_open1_std_shared_ptr_open2_omega_change_struct_close2_close1_close0_instantiation(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_vector>(),
@@ -1868,7 +1927,7 @@ fn __bindgen_test_layout_std_vector_open0_const_omega_change_ptr_t_std_allocator
     );
 }
 #[test]
-fn __bindgen_test_layout_std_allocator_open0_std_shared_ptr_open1_omega_change_t_close1_close0_instantiation(
+fn __bindgen_test_layout_std_allocator_open0_std_shared_ptr_open1_omega_change_struct_close1_close0_instantiation(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_allocator>(),
@@ -1888,7 +1947,7 @@ fn __bindgen_test_layout_std_allocator_open0_std_shared_ptr_open1_omega_change_t
     );
 }
 #[test]
-fn __bindgen_test_layout_std_shared_ptr_open0_omega_change_t_close0_instantiation_1() {
+fn __bindgen_test_layout_std_shared_ptr_open0_omega_change_struct_close0_instantiation() {
     assert_eq!(
         ::std::mem::size_of::<std_shared_ptr>(),
         16usize,
@@ -1907,7 +1966,7 @@ fn __bindgen_test_layout_std_shared_ptr_open0_omega_change_t_close0_instantiatio
     );
 }
 #[test]
-fn __bindgen_test_layout_std_unique_ptr_open0_omega_model_t_std_default_delete_open1_omega_model_t_close1_close0_instantiation(
+fn __bindgen_test_layout_std_unique_ptr_open0_omega_model_t_std_default_delete_open1_omega_model_struct_close1_close0_instantiation(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_unique_ptr>(),
@@ -1927,7 +1986,7 @@ fn __bindgen_test_layout_std_unique_ptr_open0_omega_model_t_std_default_delete_o
     );
 }
 #[test]
-fn __bindgen_test_layout_std_default_delete_open0_omega_model_t_close0_instantiation() {
+fn __bindgen_test_layout_std_default_delete_open0_omega_model_struct_close0_instantiation() {
     assert_eq!(
         ::std::mem::size_of::<std_default_delete>(),
         1usize,
@@ -1965,7 +2024,7 @@ fn __bindgen_test_layout_std_shared_ptr_open0_omega_viewport_t_close0_instantiat
     );
 }
 #[test]
-fn __bindgen_test_layout_std_vector_open0_omega_viewport_ptr_t_std_allocator_open1_std_shared_ptr_open2_omega_viewport_t_close2_close1_close0_instantiation(
+fn __bindgen_test_layout_std_vector_open0_omega_viewport_ptr_t_std_allocator_open1_std_shared_ptr_open2_omega_viewport_struct_close2_close1_close0_instantiation(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_vector>(),
@@ -1982,7 +2041,7 @@ fn __bindgen_test_layout_std_vector_open0_omega_viewport_ptr_t_std_allocator_ope
     );
 }
 #[test]
-fn __bindgen_test_layout_std_allocator_open0_std_shared_ptr_open1_omega_viewport_t_close1_close0_instantiation(
+fn __bindgen_test_layout_std_allocator_open0_std_shared_ptr_open1_omega_viewport_struct_close1_close0_instantiation(
 ) {
     assert_eq!(
         ::std::mem::size_of::<std_allocator>(),
@@ -2002,7 +2061,7 @@ fn __bindgen_test_layout_std_allocator_open0_std_shared_ptr_open1_omega_viewport
     );
 }
 #[test]
-fn __bindgen_test_layout_std_shared_ptr_open0_omega_viewport_t_close0_instantiation_1() {
+fn __bindgen_test_layout_std_shared_ptr_open0_omega_viewport_struct_close0_instantiation() {
     assert_eq!(
         ::std::mem::size_of::<std_shared_ptr>(),
         16usize,

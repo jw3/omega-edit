@@ -2,15 +2,18 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-use std::ffi::CString;
+use std::ffi::{c_void, CString};
+use std::fmt::{Display, Formatter};
 use std::ptr;
+use std::rc::Rc;
 
 include!("bindings.rs");
 
-type ViewportCallback = unsafe extern "C" fn(*const omega_viewport_t, *const omega_change_t);
+type ViewportCallback = Box<dyn Fn(&Viewport)>;
 
 pub struct Session {
     p: *mut omega_session_t,
+    views: Vec<Rc<Viewport>>,
 }
 
 impl Drop for Session {
@@ -24,12 +27,19 @@ impl Drop for Session {
 impl Session {
     pub fn new() -> Self {
         let p = unsafe { omega_edit_create_session(ptr::null(), None, ptr::null_mut()) };
-        Self { p }
+        Self { p, views: vec![] }
     }
 
-    pub fn view(&self, offset: i64, size: i64, cb: Option<ViewportCallback>) -> Viewport {
-        let p = unsafe { omega_edit_create_viewport(self.p, offset, size, cb, ptr::null_mut()) };
-        Viewport { p }
+    pub fn view(&mut self, offset: i64, size: i64, cb: ViewportCallback) -> Rc<Viewport> {
+        let p = unsafe {
+            omega_edit_create_viewport(self.p, offset, size, Some(vpt_change_cbk), ptr::null_mut())
+        };
+        let rc = Rc::new(Viewport { p, f: Some(cb) });
+        self.views.push(rc.clone());
+        unsafe {
+            (*p).user_data_ptr = Rc::into_raw(rc.clone()) as *mut c_void;
+        };
+        rc
     }
 
     pub fn push(&mut self, s: &str) {
@@ -62,6 +72,7 @@ impl Session {
 
 pub struct Viewport {
     p: *mut omega_viewport_t,
+    f: Option<ViewportCallback>,
 }
 
 impl Viewport {
@@ -74,6 +85,24 @@ impl Viewport {
             let len = omega_viewport_get_length(self.p);
             let dat = omega_viewport_get_data(self.p);
             std::slice::from_raw_parts(dat, len as usize)
+        }
+    }
+}
+
+impl Display for Viewport {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&String::from_utf8(self.data().into()).unwrap())
+    }
+}
+
+extern "C" fn vpt_change_cbk(v: *const omega_viewport_t, _: *const omega_change_t) {
+    unsafe {
+        let x = omega_viewport_get_user_data(v);
+        if !x.is_null() {
+            let vp = &*(x as *mut Viewport);
+            if vp.f.is_some() {
+                ((*vp).f.as_ref().unwrap())(&*vp);
+            }
         }
     }
 }
