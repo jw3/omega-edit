@@ -18,6 +18,7 @@ fn main() {
         .allowlist_function("omega_viewport_get_data")
         .allowlist_function("omega_viewport_get_user_data")
         .allowlist_function("omega_viewport_get_length")
+        .allowlist_function("omega_viewport_update")
         .generate_inline_functions(true)
         .clang_args(&["-x", "c++"])
         // Tell cargo to invalidate the built crate whenever any of the
